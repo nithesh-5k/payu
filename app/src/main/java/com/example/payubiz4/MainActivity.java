@@ -30,30 +30,29 @@ public class MainActivity extends AppCompatActivity {
         onBiometricKyc();
     }
 
-
-    String key = "PTGDR2";
-    String salt = "2KVAqbrt";
+    String transactionId = "1121334";
+    String amount = "100.0";
+    String productInfo = "Gold Loan";
+    String name = "Nithesh";
+    String email = "5nithesh011@gmail.com";
+    String cardNumber = "5126520180876620";
+    String nameOnCard = "test";
+    String cardMonth = "02";
+    String cardYear = "2027";
+    String cardCvv = "509";
+    String bankCode = "HDFB";
 
     void onBiometricKyc() {
-
-        String transactionId = "1121334";
-
+        String key = "PTGDR2";
         PaymentParams mPaymentParams = new PaymentParams();
         mPaymentParams.setKey(key);
-        mPaymentParams.setAmount("100.0");
-        mPaymentParams.setProductInfo("Gold Loan");
-        mPaymentParams.setFirstName("Nithesh");
-        mPaymentParams.setEmail("5nithesh011@gmail.com");
+        mPaymentParams.setAmount(amount);
+        mPaymentParams.setProductInfo(productInfo);
+        mPaymentParams.setFirstName(name);
+        mPaymentParams.setEmail(email);
         mPaymentParams.setTxnId(transactionId);
         mPaymentParams.setSurl("https://payu.herokuapp.com/success");
         mPaymentParams.setFurl("https://payu.herokuapp.com/failure");
-        mPaymentParams.setCardNumber("5126520180876620");
-        mPaymentParams.setNameOnCard("test");
-        mPaymentParams.setExpiryMonth("02");
-        mPaymentParams.setExpiryYear("2027");
-        mPaymentParams.setCvv("509");
-
-
         /*
          * udf1 to udf5 are options params where you can pass additional information related to transaction.
          * If you don't want to use it, then send them as empty string like, udf1=""
@@ -64,49 +63,29 @@ public class MainActivity extends AppCompatActivity {
         mPaymentParams.setUdf4("");
         mPaymentParams.setUdf5("");
 
-        mPaymentParams.setBankCode("HDFB");
+
+        mPaymentParams.setHash(calculateHash(key+"|"+transactionId+"|"+amount+"|"+productInfo+"|"+name+"|"+email+"|||||||||||"));
 
         PayuConfig payuConfig = new PayuConfig();
-        PostData postData;
-
-//        PayUChecksum checksum;
-//        checksum = new PayUChecksum();
-//        checksum.setAmount(mPaymentParams.getAmount());
-//        checksum.setKey(mPaymentParams.getKey());
-//        checksum.setTxnid(mPaymentParams.getTxnId());
-//        checksum.setEmail(mPaymentParams.getEmail());
-//        checksum.setSalt(salt);
-//        checksum.setProductinfo(mPaymentParams.getProductInfo());
-//        checksum.setFirstname(mPaymentParams.getFirstName());
-//        checksum.setUdf1(mPaymentParams.getUdf1());
-//        checksum.setUdf2(mPaymentParams.getUdf2());
-//        checksum.setUdf3(mPaymentParams.getUdf3());
-//        checksum.setUdf4(mPaymentParams.getUdf4());
-//        checksum.setUdf5(mPaymentParams.getUdf5());
-
-//        postData = checksum.getHash();
-
-//        PayuHashes payuHashes = new PayuHashes();
-//        if (postData.getCode() == PayuErrors.NO_ERROR) {
-//            payuHashes.setPaymentHash(postData.getResult());
-//        }
-
         payuConfig.setEnvironment(PayuConstants.STAGING_ENV);
 
-        mPaymentParams.setHash(calculateHash("PTGDR2|1121334|100.0|Gold Loan|Nithesh|5nithesh011@gmail|||||||||||2KVAqbrt"));
-        Log.d("Hash", mPaymentParams.getHash());
-//        postData = new PaymentPostParams(mPaymentParams, PayuConstants.NB).getPaymentPostParams();
-        // for debit card
-        // reference link - https://payumobile.gitbook.io/sdk-integration/android/pg-sdk/supported-payment-types
+        mPaymentParams.setCardNumber(cardNumber);
+        mPaymentParams.setNameOnCard(nameOnCard);
+        mPaymentParams.setExpiryMonth(cardMonth);
+        mPaymentParams.setExpiryYear(cardYear);
+        mPaymentParams.setCvv(cardCvv);
 
+        PostData postData = new PaymentPostParams(mPaymentParams, PayuConstants.CC).getPaymentPostParams();
+//        for debit card
+//        reference link - https://payumobile.gitbook.io/sdk-integration/android/pg-sdk/supported-payment-types
 
-        postData = new PaymentPostParams(mPaymentParams, PayuConstants.CC).getPaymentPostParams();
-        //for net banking
+        mPaymentParams.setBankCode(bankCode);
+//        PostData postData = new PaymentPostParams(mPaymentParams, PayuConstants.NB).getPaymentPostParams();
+//        for net banking
 
-
-        Log.d("Result", "Code: " + postData.getCode());
-        Log.d("Result", "Result: " + postData.getResult());
-        Log.d("Result", "Status: " + postData.getStatus());
+//        Log.d("Result", "Code: " + postData.getCode());
+//        Log.d("Result", "Result: " + postData.getResult());
+//        Log.d("Result", "Status: " + postData.getStatus());
 
         payuConfig.setData(postData.getResult());
         Intent intent = new Intent(this, PaymentsActivity.class);
@@ -134,6 +113,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private String calculateHash(String input) {
+        String salt = "2KVAqbrt";
+        input = input + salt;
         try {
             StringBuilder hash = new StringBuilder();
             MessageDigest messageDigest = MessageDigest.getInstance("SHA-512");
