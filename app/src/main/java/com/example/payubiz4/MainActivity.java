@@ -16,6 +16,11 @@ import com.payu.india.Payu.PayuErrors;
 import com.payu.paymentparamhelper.PaymentPostParams;
 import com.payu.paymentparamhelper.PostData;
 
+import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
 public class MainActivity extends AppCompatActivity {
 
     @Override
@@ -26,10 +31,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    String key = "";
-    String salt = "";
+    String key = "PTGDR2";
+    String salt = "2KVAqbrt";
 
     void onBiometricKyc() {
+
+        String transactionId = "1121334";
 
         PaymentParams mPaymentParams = new PaymentParams();
         mPaymentParams.setKey(key);
@@ -37,15 +44,14 @@ public class MainActivity extends AppCompatActivity {
         mPaymentParams.setProductInfo("Gold Loan");
         mPaymentParams.setFirstName("Nithesh");
         mPaymentParams.setEmail("5nithesh011@gmail.com");
-        mPaymentParams.setTxnId("1102324");
+        mPaymentParams.setTxnId(transactionId);
         mPaymentParams.setSurl("https://payu.herokuapp.com/success");
         mPaymentParams.setFurl("https://payu.herokuapp.com/failure");
-        mPaymentParams.setCardNumber("5123456789012346");
-        mPaymentParams.setCardName("test");
+        mPaymentParams.setCardNumber("5126520180876620");
         mPaymentParams.setNameOnCard("test");
-        mPaymentParams.setExpiryMonth("06");
-        mPaymentParams.setExpiryYear("2023");
-        mPaymentParams.setCvv("123");
+        mPaymentParams.setExpiryMonth("02");
+        mPaymentParams.setExpiryYear("2027");
+        mPaymentParams.setCvv("509");
 
 
         /*
@@ -58,42 +64,43 @@ public class MainActivity extends AppCompatActivity {
         mPaymentParams.setUdf4("");
         mPaymentParams.setUdf5("");
 
-        mPaymentParams.setBankCode("HDFCENCC");
+        mPaymentParams.setBankCode("HDFB");
 
         PayuConfig payuConfig = new PayuConfig();
-        PostData postData = new PostData();
+        PostData postData;
 
-        PayUChecksum checksum;
-        checksum = new PayUChecksum();
-        checksum.setAmount(mPaymentParams.getAmount());
-        checksum.setKey(mPaymentParams.getKey());
-        checksum.setTxnid(mPaymentParams.getTxnId());
-        checksum.setEmail(mPaymentParams.getEmail());
-        checksum.setSalt(salt);
-        checksum.setProductinfo(mPaymentParams.getProductInfo());
-        checksum.setFirstname(mPaymentParams.getFirstName());
-        checksum.setUdf1(mPaymentParams.getUdf1());
-        checksum.setUdf2(mPaymentParams.getUdf2());
-        checksum.setUdf3(mPaymentParams.getUdf3());
-        checksum.setUdf4(mPaymentParams.getUdf4());
-        checksum.setUdf5(mPaymentParams.getUdf5());
+//        PayUChecksum checksum;
+//        checksum = new PayUChecksum();
+//        checksum.setAmount(mPaymentParams.getAmount());
+//        checksum.setKey(mPaymentParams.getKey());
+//        checksum.setTxnid(mPaymentParams.getTxnId());
+//        checksum.setEmail(mPaymentParams.getEmail());
+//        checksum.setSalt(salt);
+//        checksum.setProductinfo(mPaymentParams.getProductInfo());
+//        checksum.setFirstname(mPaymentParams.getFirstName());
+//        checksum.setUdf1(mPaymentParams.getUdf1());
+//        checksum.setUdf2(mPaymentParams.getUdf2());
+//        checksum.setUdf3(mPaymentParams.getUdf3());
+//        checksum.setUdf4(mPaymentParams.getUdf4());
+//        checksum.setUdf5(mPaymentParams.getUdf5());
 
-        postData = checksum.getHash();
+//        postData = checksum.getHash();
 
-        PayuHashes payuHashes = new PayuHashes();
-        if (postData.getCode() == PayuErrors.NO_ERROR) {
-            payuHashes.setPaymentHash(postData.getResult());
-        }
+//        PayuHashes payuHashes = new PayuHashes();
+//        if (postData.getCode() == PayuErrors.NO_ERROR) {
+//            payuHashes.setPaymentHash(postData.getResult());
+//        }
 
-        payuConfig.setEnvironment(2);
+        payuConfig.setEnvironment(PayuConstants.STAGING_ENV);
 
-        mPaymentParams.setHash(payuHashes.getPaymentHash());
-//        postData = new PaymentPostParams(mPaymentParams, PayuConstants.CC).getPaymentPostParams();
+        mPaymentParams.setHash(calculateHash("PTGDR2|1121334|100.0|Gold Loan|Nithesh|5nithesh011@gmail|||||||||||2KVAqbrt"));
+        Log.d("Hash", mPaymentParams.getHash());
+//        postData = new PaymentPostParams(mPaymentParams, PayuConstants.NB).getPaymentPostParams();
         // for debit card
         // reference link - https://payumobile.gitbook.io/sdk-integration/android/pg-sdk/supported-payment-types
 
 
-        postData = new PaymentPostParams(mPaymentParams, PayuConstants.NB).getPaymentPostParams();
+        postData = new PaymentPostParams(mPaymentParams, PayuConstants.CC).getPaymentPostParams();
         //for net banking
 
 
@@ -104,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
         payuConfig.setData(postData.getResult());
         Intent intent = new Intent(this, PaymentsActivity.class);
         intent.putExtra(PayuConstants.PAYU_CONFIG, payuConfig);
-        startActivityForResult(intent,PayuConstants.PAYU_REQUEST_CODE);
+        startActivityForResult(intent, PayuConstants.PAYU_REQUEST_CODE);
     }
 
     protected void onActivityResult(int requestCode, int resultCode, final Intent data) {
@@ -123,6 +130,27 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 Toast.makeText(this, "could_not_receive_data", Toast.LENGTH_LONG).show();
             }
+        }
+    }
+
+    private String calculateHash(String input) {
+        try {
+            StringBuilder hash = new StringBuilder();
+            MessageDigest messageDigest = MessageDigest.getInstance("SHA-512");
+            messageDigest.update(input.getBytes());
+            byte[] mdbytes = messageDigest.digest();
+            byte[] var5 = mdbytes;
+            int var6 = mdbytes.length;
+
+            for(int var7 = 0; var7 < var6; ++var7) {
+                byte hashByte = var5[var7];
+                hash.append(Integer.toString((hashByte & 255) + 256, 16).substring(1));
+            }
+            Log.d("Hash",hash.toString());
+
+            return hash.toString();
+        } catch (NoSuchAlgorithmException var9) {
+            return " Message digest sha 512 not found!";
         }
     }
 }
