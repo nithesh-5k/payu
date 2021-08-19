@@ -41,10 +41,6 @@ public class PaymentsActivity extends FragmentActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-
-        Log.d("Payment Activity", "1");
-
         //android O fix bug orientation
         if (android.os.Build.VERSION.SDK_INT != Build.VERSION_CODES.O) {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
@@ -96,7 +92,6 @@ public class PaymentsActivity extends FragmentActivity {
                     }
                 }
 
-                Log.d("Payment Activity", "2");
                 //set callback to track important events
                 PayUCustomBrowserCallback payUCustomBrowserCallback = new PayUCustomBrowserCallback() {
 
