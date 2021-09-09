@@ -10,22 +10,11 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
-import com.payu.india.Extras.PayUChecksum;
-import com.payu.india.Interfaces.GetStoredCardApiListener;
-import com.payu.india.Interfaces.PaymentRelatedDetailsListener;
-import com.payu.india.Interfaces.SaveCardApiListener;
 import com.payu.india.Model.*;
 import com.payu.india.Payu.PayuConstants;
-import com.payu.india.Payu.PayuErrors;
-import com.payu.india.PostParams.MerchantWebServicePostParams;
-import com.payu.india.Tasks.GetPaymentRelatedDetailsTask;
-import com.payu.india.Tasks.GetStoredCardTask;
-import com.payu.india.Tasks.SaveCardTask;
 import com.payu.paymentparamhelper.PaymentPostParams;
 import com.payu.paymentparamhelper.PostData;
 
-import java.math.BigInteger;
-import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -38,19 +27,26 @@ public class MainActivity extends AppCompatActivity {
         onBiometricKyc();
     }
 
-    String key = "PTGDR2";
-    String transactionId = "1153878453334";
-    String amount = "100.0";
+    String key = "";
+    String transactionId = "16762648334";
+    String amount = "0.1";
     String productInfo = "Gold Loan";
     String name = "Nithesh";
     String email = "nithesh@gmail.com";
     String userCredentials = key + ":" + email;
-    String cardNumber = "5126520180876620";
-    String nameOnCard = "test";
-    String cardMonth = "02";
-    String cardYear = "2027";
-    String cardCvv = "509";
+    String cardNumber = "";
+//            "5126520180876620";
+    String nameOnCard = "Nithesh";
+//    = "test";
+    String cardMonth  = "";
+//        = "02";
+    String cardYear ="";
+//        = "2027";
+    String cardCvv ="";
+//        = "509";
     String bankCode = "HDFB";
+    String furl = "";
+    String surl = "";
 
     void onBiometricKyc() {
         PaymentParams mPaymentParams = new PaymentParams();
@@ -77,21 +73,22 @@ public class MainActivity extends AppCompatActivity {
         mPaymentParams.setHash(calculateHash(key + "|" + transactionId + "|" + amount + "|" + productInfo + "|" + name + "|" + email + "|||||||||||"));
 
         PayuConfig payuConfig = new PayuConfig();
-        payuConfig.setEnvironment(PayuConstants.STAGING_ENV);
+        payuConfig.setEnvironment(PayuConstants.PRODUCTION_ENV);
 
-//        mPaymentParams.setCardNumber(cardNumber);
-//        mPaymentParams.setNameOnCard(nameOnCard);
-//        mPaymentParams.setExpiryMonth(cardMonth);
-//        mPaymentParams.setExpiryYear(cardYear);
-//        mPaymentParams.setCvv(cardCvv);
+        mPaymentParams.setCardNumber(cardNumber);
+        mPaymentParams.setNameOnCard(nameOnCard);
+        mPaymentParams.setExpiryMonth(cardMonth);
+        mPaymentParams.setExpiryYear(cardYear);
+        mPaymentParams.setCvv(cardCvv);
 
-//        PostData postData = new PaymentPostParams(mPaymentParams, PayuConstants.CC).getPaymentPostParams();
+        PostData postData = new PaymentPostParams(mPaymentParams, PayuConstants.CC).getPaymentPostParams();
+
 //        for debit card
 //        reference link - https://payumobile.gitbook.io/sdk-integration/android/pg-sdk/supported-payment-types
 
         //TODO couldn't access the bank servers by directly passing the bank code
-        mPaymentParams.setBankCode(bankCode);
-        PostData postData = new PaymentPostParams(mPaymentParams, PayuConstants.NB).getPaymentPostParams();
+//        mPaymentParams.setBankCode(bankCode);
+//        PostData postData = new PaymentPostParams(mPaymentParams, PayuConstants.NB).getPaymentPostParams();
 //        for net banking
 
 
@@ -168,7 +165,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private String calculateHash(String input) {
-        String salt = "2KVAqbrt";
+        String salt = "";
         input = input + salt;
         try {
             StringBuilder hash = new StringBuilder();
@@ -189,6 +186,5 @@ public class MainActivity extends AppCompatActivity {
             return " Message digest sha 512 not found!";
         }
     }
-
 }
 
